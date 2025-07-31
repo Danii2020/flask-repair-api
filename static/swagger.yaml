@@ -1,0 +1,59 @@
+openapi: 3.0.3
+info:
+  title: Flask Repair API
+  version: 1.0.0
+  description: |
+    A lightweight Flask application simulating a spaceship diagnostics and repair system.
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+paths:
+  /status:
+    get:
+      summary: Get damaged system status
+      description: Returns the currently damaged system in JSON format.
+      responses:
+        '200':
+          description: Damaged system
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DamagedSystemResponse'
+  /repair-bay:
+    get:
+      summary: Get repair code page
+      description: Serves an HTML page containing the repair code for the damaged system.
+      responses:
+        '200':
+          description: HTML page with repair code
+          content:
+            text/html:
+              schema:
+                type: string
+  /teapot:
+    post:
+      summary: Teapot response
+      description: Returns HTTP 418 "I'm a teapot" as a playful endpoint.
+      responses:
+        '418':
+          description: I'm a teapot
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas:
+    DamagedSystemResponse:
+      type: object
+      properties:
+        damaged_system:
+          type: string
+          description: The system that is currently damaged.
+          enum:
+            - navigation
+            - communications
+            - life_support
+            - engines
+            - deflector_shield
+      required:
+        - damaged_system

@@ -1,7 +1,27 @@
-from flask import Flask, jsonify, render_template_string, abort
+from flask import Flask, jsonify, render_template_string
 import random
+from flask_swagger_ui import get_swaggerui_blueprint
 
-app = Flask(__name__)
+# API version
+API_VERSION = 'v1'
+API_PREFIX = f'/api/{API_VERSION}'
+
+# Initialize Flask app, serve static files under /api/v1/static
+app = Flask(
+    __name__,
+    static_folder='static',
+    static_url_path=f'{API_PREFIX}/static'
+)
+
+# Swagger UI configuration
+SWAGGER_URL = f'{API_PREFIX}/docs'
+API_URL = f'{API_PREFIX}/static/swagger.yaml'  # swagger spec served from static/swagger.yaml
+swaggerui_bp = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={'app_name': "Flask Repair API"}
+)
+app.register_blueprint(swaggerui_bp, url_prefix=SWAGGER_URL)
 
 # List of possible damaged systems
 damaged_systems = [
@@ -12,7 +32,7 @@ damaged_systems = [
     "deflector_shield"
 ]
 
-# Codes for repair-bay
+# Mapping of repair codes
 repair_codes = {
     "navigation": "NAV-01",
     "communications": "COM-02",
@@ -21,31 +41,31 @@ repair_codes = {
     "deflector_shield": "SHLD-05"
 }
 
-# Random choice of the damaged system
+# Randomly pick a damaged system on startup
 damaged_system = random.choice(damaged_systems)
 
-@app.route('/status', methods=['GET'])
+@app.route(f'{API_PREFIX}/status', methods=['GET'])
 def status():
     """
-    Returns the state of the system.
-    { "damaged_system": "<system>" }
+    Returns currently damaged system in JSON:
+    { "damaged_system": "<system_name>" }
     """
     return jsonify({"damaged_system": damaged_system})
 
-@app.route('/repair-bay', methods=['GET'])
+@app.route(f'{API_PREFIX}/repair-bay', methods=['GET'])
 def repair_bay():
     """
-    Generates the HTML with <div class="anchor-point">CODE</div>
-    where CODE is the table.
+    Serves HTML page with repair code:
+    <div class="anchor-point">REPAIR_CODE</div>
     """
-    code = repair_codes.get(damaged_system)
+    code = repair_codes[damaged_system]
     html = render_template_string(
         """
         <!DOCTYPE html>
         <html>
-        <head><title>Repair</title></head>
+        <head><title>Repair Bay</title></head>
         <body>
-        <div class="anchor-point">{{ code }}</div>
+          <div class=\"anchor-point\">{{ code }}</div>
         </body>
         </html>
         """,
@@ -53,7 +73,7 @@ def repair_bay():
     )
     return html, 200, {'Content-Type': 'text/html'}
 
-@app.route('/teapot', methods=['POST'])
+@app.route(f'{API_PREFIX}/teapot', methods=['POST'])
 def teapot():
     """
     Returns HTTP 418 I'm a teapot
@@ -61,5 +81,4 @@ def teapot():
     return "I'm a teapot", 418
 
 if __name__ == '__main__':
-    # Run the app
-    app.run()
+    app.run(debug=True)
