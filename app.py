@@ -80,5 +80,20 @@ def teapot():
     """
     return "I'm a teapot", 418
 
+@app.route(f'{API_PREFIX}/', methods=['GET'])
+def home():
+    html = render_template_string(
+    """
+    <!DOCTYPE html>
+    <html>
+    <head><title>Repair Bay</title></head>
+    <body>
+        <h1>Hey, hope you are having a great day in space!</h1>
+    </body>
+    </html>
+    """
+    )
+    return html, 200, {'Content-Type': 'text/html'}
+
 if __name__ == '__main__':
     app.run(debug=True)
