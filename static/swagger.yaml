@@ -5,10 +5,10 @@ info:
   description: |
     A lightweight Flask application simulating a spaceship diagnostics and repair system.
 servers:
-  - url: http://localhost:5000
+  - url: http://127.0.0.1:5000
     description: Local development server
 paths:
-  /status:
+  /api/v1/status:
     get:
       summary: Get damaged system status
       description: Returns the currently damaged system in JSON format.
@@ -19,7 +19,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DamagedSystemResponse'
-  /repair-bay:
+  /api/v1/repair-bay:
     get:
       summary: Get repair code page
       description: Serves an HTML page containing the repair code for the damaged system.
@@ -30,7 +30,7 @@ paths:
             text/html:
               schema:
                 type: string
-  /teapot:
+  /api/v1/teapot:
     post:
       summary: Teapot response
       description: Returns HTTP 418 "I'm a teapot" as a playful endpoint.
@@ -41,6 +41,38 @@ paths:
             text/plain:
               schema:
                 type: string
+  /api/v1/phase-change-diagram:
+    get:
+      summary: Get saturated specific volumes for a given pressure
+      description: |
+        Computes or looks up the saturated liquid and vapor specific volumes for the given pressure (in MPa).
+      parameters:
+        - name: pressure
+          in: query
+          description: Pressure in megapascal (MPa)
+          required: true
+          schema:
+            type: number
+            format: float
+      responses:
+        '200':
+          description: Specific volumes at the given pressure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhaseChangeResponse'
+        '400':
+          description: Missing or invalid pressure parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Data not found for the specified pressure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
     DamagedSystemResponse:
@@ -57,3 +89,25 @@ components:
             - deflector_shield
       required:
         - damaged_system
+    PhaseChangeResponse:
+      type: object
+      properties:
+        specific_volume_liquid:
+          type: number
+          format: float
+          description: Saturated liquid specific volume (m³/kg)
+        specific_volume_vapor:
+          type: number
+          format: float
+          description: Saturated vapor specific volume (m³/kg)
+      required:
+        - specific_volume_liquid
+        - specific_volume_vapor
+    ErrorResponse:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Error message explaining the problem.
+      required:
+        - description
