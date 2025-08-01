@@ -5,6 +5,7 @@ from data import damaged_systems
 from blueprints.status_bp import status_bp
 from blueprints.repair_bay_bp import repair_bay_bp
 from blueprints.phase_change_bp import phase_bp
+from blueprints.teapot_bp import teapot_bp
 import random
 
 # API version
@@ -36,6 +37,7 @@ app.register_blueprint(swaggerui_bp, url_prefix=SWAGGER_URL)
 app.register_blueprint(status_bp, url_prefix=f"{API_PREFIX}/status")
 app.register_blueprint(repair_bay_bp, url_prefix=f"{API_PREFIX}/repair-bay")
 app.register_blueprint(phase_bp, url_prefix=f"{API_PREFIX}/phase-change-diagram")
+app.register_blueprint(teapot_bp, url_prefix=f"{API_PREFIX}/teapot")
 
 @app.route(f'{API_PREFIX}/', methods=['GET'])
 def home():
